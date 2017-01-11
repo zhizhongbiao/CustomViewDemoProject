@@ -1,0 +1,129 @@
+<resources>
+    <string name="app_name">CustomViewDemo</string>
+
+    <string-array name="Strings">
+        <item>Strings</item>
+        <item>Strings</item>
+        <item>Strings</item>
+        <item>Strings</item>
+        <item>Strings</item>
+        <item>Strings</item>
+        <item>Strings</item>
+        <item>Strings</item>
+        <item>Strings</item>
+        <item>Strings</item>
+        <item>Strings</item>
+        <item>Strings</item>
+        <item>Strings</item>
+        <item>Strings</item>
+        <item>Strings</item>
+        <item>Strings</item>
+        <item>Strings</item>
+        <item>Strings</item>
+        <item>Strings</item>
+        <item>Strings</item>
+        <item>Strings</item>
+        <item>Strings</item>
+        <item>Strings</item>
+        <item>Strings</item>
+        <item>Strings</item>
+        <item>Strings</item>
+        <item>Strings</item>
+        <item>Strings</item>
+        <item>Strings</item>
+        <item>Strings</item><item>Strings</item>
+        <item>Strings</item>
+        <item>Strings</item>
+        <item>Strings</item>
+        <item>Strings</item>
+        <item>Strings</item>
+        <item>Strings</item>
+        <item>Strings</item>
+        <item>Strings</item>
+        <item>Strings</item>
+        <item>Strings</item>
+        <item>Strings</item>
+        <item>Strings</item>
+        <item>Strings</item>
+        <item>Strings</item>
+        <item>Strings</item>
+        <item>Strings</item>
+        <item>Strings</item>
+        <item>Strings</item>
+        <item>Strings</item>
+        <item>Strings</item>
+        <item>Strings</item>
+        <item>Strings</item>
+        <item>Strings</item>
+        <item>Strings</item>
+        <item>Strings</item>
+        <item>Strings</item>
+        <item>Strings</item>
+        <item>Strings</item>
+        <item>Strings</item>
+    </string-array>
+    <string name="text">IOS上的bounce功能给人的感触感染很爽，当一个可以迁移转变的区域被拖到鸿沟时，它容许用户将内容拖过界，甩手后再弹回来，以一种很是棒的体式格式提示了用户鸿沟的存在，是IOS的一大特点。android2.3新增了overscroll功能，听名字就知道应当是bounce功能的翻版，但也许是出于专利方面的推敲，google的默认实现跟IOS有所不合，它只是在list拖到鸿沟处时做了一个发光的动画，小我感觉体验比IOS差远了。并且这个的发光在黑色靠山下固然结果不错，在其它靠山下可就难说了，是以很多人想要关掉它。
+
+      日前google上搜刮“android overscroll”，对此结果的先允很多，但关于其具体应用体式格式和实现，则很少涉及，偶有说起，也经常答非所问或貌同实异，反而误导了别人。于是我查阅了android相干源码，并做了一些测试，在此讲讲我的懂得。
+
+      起首是overscroll功能本身，在最顶层的View类供给了支撑，可经由过程setOverScrollMode函数把握其呈现前提。但其实View中并没有实现overscroll功能，它仅仅供给了一个帮助函数overScrollBy，该函数按照overScrollMode和内容是否须要迁移转变把握最大迁移转变局限，最后将策画成果传给onOverScrolled实现具体的overscroll功能，但此函数在View类中是全空的。
+
+      overscroll功能真正的实现分别在ScrollView、AbsListView、HorizontalScrollView和WebView中各有一份，代码根蒂根基一样。以ScrollView为例，它在处理惩罚笔点移动消息时调用overScrollBy来迁移转变视图，然后重载了overScrollBy函数来实现具体功能，其地位策画经由过程OverScroller类实现。OverScroller作为一个策画引擎，应当是一个自力的模块，具体迁移转变结果和局限都不成能经由过程它来设置，我感觉没有须要细看。但迁移转变地位终极是它给出的，那相干数据必然要传递给它，回头看overScrollBy函数，它有两个把握overScroll出界局限的参数，几个实现里面都是取自ViewConfiguration.getScaledOverscrollDistance，而这个参数的值在我的源码中都是0，并且我没找到任何可以影响其成果的设置。
+
+      真悲催，绕了半天，android的默认实现里面底子没有给出overscroll功能，它只是供给了实现机制，要想用起来还得应用法度本身显式重写相干控件，估计还有一层隐含的意思，法令风险自大。在我的体系中一试，果真一个像素都不克不及拉出界。但那个闪光是怎么回事呢？
+
+      在处理惩罚笔点消息处，overScrollBy后面不远处有一段mEdgeGlowTop的操纵代码，看名字就像，用它一搜，相干机制就全熟悉打听了。mEdgeGlowTop在setOverScrollMode函数时创建，它应用的都是体系中固有的，甚至不克不及经由过程theme改变。它的实现道理也很简单，仅仅是两张png的合成，经由过程透明度的变更建造闪光的结果。更无语的是它既不克不及被应用法度接见，也不受任何把握，要封闭它的独一办法是setOverScrollMode（View.OVER_SCROLL_NEVER）。不然就重写onTouchEvent函数吧，想干啥都可以，只是得本身做。
+
+      谈到overScroll，很多文章都提到了ListView的setOverscrollHeader和setOverscrollFooter，很多人想经由过程这个来把握那个闪光结果。这两玩意不单可以经由过程函数设置，也可以在xml中指定，相当便利。但最后很多人发明没有任何感化，百思不得其解。其实这两张是用来作为overScroll拖过界时的靠山的，默认体系不克不及拖过界，天然永远都看不到，有些定制的体系中能拖出界几个像素，但也很丢脸清。
+
+                第二项目组  代码实现
+     1. 在View中增长了overSrollBy办法，用于记录x， y 轴上迁移转变。
+
+     2. 在AbsListView的onTouchEvent中断定是否达到鸿沟（顶部 或 底部） ，然后调用view.overScrollBy ，传入 mScrollY等参数
+
+     3. overScrollBy 终极赋值给View的mScrollX， mScrollY 两个变量
+
+     4. 在AbsListView中调用完overScrollBy之后，调用invalidate重绘 IOS上的bounce功能给人的感触感染很爽，当一个可以迁移转变的区域被拖到鸿沟时，它容许用户将内容拖过界，甩手后再弹回来，以一种很是棒的体式格式提示了用户鸿沟的存在，是IOS的一大特点。android2.3新增了overscroll功能，听名字就知道应当是bounce功能的翻版，但也许是出于专利方面的推敲，google的默认实现跟IOS有所不合，它只是在list拖到鸿沟处时做了一个发光的动画，小我感觉体验比IOS差远了。并且这个的发光在黑色靠山下固然结果不错，在其它靠山下可就难说了，是以很多人想要关掉它。
+
+      日前google上搜刮“android overscroll”，对此结果的先允很多，但关于其具体应用体式格式和实现，则很少涉及，偶有说起，也经常答非所问或貌同实异，反而误导了别人。于是我查阅了android相干源码，并做了一些测试，在此讲讲我的懂得。
+
+      起首是overscroll功能本身，在最顶层的View类供给了支撑，可经由过程setOverScrollMode函数把握其呈现前提。但其实View中并没有实现overscroll功能，它仅仅供给了一个帮助函数overScrollBy，该函数按照overScrollMode和内容是否须要迁移转变把握最大迁移转变局限，最后将策画成果传给onOverScrolled实现具体的overscroll功能，但此函数在View类中是全空的。
+
+      overscroll功能真正的实现分别在ScrollView、AbsListView、HorizontalScrollView和WebView中各有一份，代码根蒂根基一样。以ScrollView为例，它在处理惩罚笔点移动消息时调用overScrollBy来迁移转变视图，然后重载了overScrollBy函数来实现具体功能，其地位策画经由过程OverScroller类实现。OverScroller作为一个策画引擎，应当是一个自力的模块，具体迁移转变结果和局限都不成能经由过程它来设置，我感觉没有须要细看。但迁移转变地位终极是它给出的，那相干数据必然要传递给它，回头看overScrollBy函数，它有两个把握overScroll出界局限的参数，几个实现里面都是取自ViewConfiguration.getScaledOverscrollDistance，而这个参数的值在我的源码中都是0，并且我没找到任何可以影响其成果的设置。
+
+      真悲催，绕了半天，android的默认实现里面底子没有给出overscroll功能，它只是供给了实现机制，要想用起来还得应用法度本身显式重写相干控件，估计还有一层隐含的意思，法令风险自大。在我的体系中一试，果真一个像素都不克不及拉出界。但那个闪光是怎么回事呢？
+
+      在处理惩罚笔点消息处，overScrollBy后面不远处有一段mEdgeGlowTop的操纵代码，看名字就像，用它一搜，相干机制就全熟悉打听了。mEdgeGlowTop在setOverScrollMode函数时创建，它应用的都是体系中固有的，甚至不克不及经由过程theme改变。它的实现道理也很简单，仅仅是两张png的合成，经由过程透明度的变更建造闪光的结果。更无语的是它既不克不及被应用法度接见，也不受任何把握，要封闭它的独一办法是setOverScrollMode（View.OVER_SCROLL_NEVER）。不然就重写onTouchEvent函数吧，想干啥都可以，只是得本身做。
+
+      谈到overScroll，很多文章都提到了ListView的setOverscrollHeader和setOverscrollFooter，很多人想经由过程这个来把握那个闪光结果。这两玩意不单可以经由过程函数设置，也可以在xml中指定，相当便利。但最后很多人发明没有任何感化，百思不得其解。其实这两张是用来作为overScroll拖过界时的靠山的，默认体系不克不及拖过界，天然永远都看不到，有些定制的体系中能拖出界几个像素，但也很丢脸清。
+
+                第二项目组  代码实现
+     1. 在View中增长了overSrollBy办法，用于记录x， y 轴上迁移转变。
+
+     2. 在AbsListView的onTouchEvent中断定是否达到鸿沟（顶部 或 底部） ，然后调用view.overScrollBy ，传入 mScrollY等参数
+
+     3. overScrollBy 终极赋值给View的mScrollX， mScrollY 两个变量
+
+     4. 在AbsListView中调用完overScrollBy之后，调用invalidate重绘 IOS上的bounce功能给人的感触感染很爽，当一个可以迁移转变的区域被拖到鸿沟时，它容许用户将内容拖过界，甩手后再弹回来，以一种很是棒的体式格式提示了用户鸿沟的存在，是IOS的一大特点。android2.3新增了overscroll功能，听名字就知道应当是bounce功能的翻版，但也许是出于专利方面的推敲，google的默认实现跟IOS有所不合，它只是在list拖到鸿沟处时做了一个发光的动画，小我感觉体验比IOS差远了。并且这个的发光在黑色靠山下固然结果不错，在其它靠山下可就难说了，是以很多人想要关掉它。
+
+      日前google上搜刮“android overscroll”，对此结果的先允很多，但关于其具体应用体式格式和实现，则很少涉及，偶有说起，也经常答非所问或貌同实异，反而误导了别人。于是我查阅了android相干源码，并做了一些测试，在此讲讲我的懂得。
+
+      起首是overscroll功能本身，在最顶层的View类供给了支撑，可经由过程setOverScrollMode函数把握其呈现前提。但其实View中并没有实现overscroll功能，它仅仅供给了一个帮助函数overScrollBy，该函数按照overScrollMode和内容是否须要迁移转变把握最大迁移转变局限，最后将策画成果传给onOverScrolled实现具体的overscroll功能，但此函数在View类中是全空的。
+
+      overscroll功能真正的实现分别在ScrollView、AbsListView、HorizontalScrollView和WebView中各有一份，代码根蒂根基一样。以ScrollView为例，它在处理惩罚笔点移动消息时调用overScrollBy来迁移转变视图，然后重载了overScrollBy函数来实现具体功能，其地位策画经由过程OverScroller类实现。OverScroller作为一个策画引擎，应当是一个自力的模块，具体迁移转变结果和局限都不成能经由过程它来设置，我感觉没有须要细看。但迁移转变地位终极是它给出的，那相干数据必然要传递给它，回头看overScrollBy函数，它有两个把握overScroll出界局限的参数，几个实现里面都是取自ViewConfiguration.getScaledOverscrollDistance，而这个参数的值在我的源码中都是0，并且我没找到任何可以影响其成果的设置。
+
+      真悲催，绕了半天，android的默认实现里面底子没有给出overscroll功能，它只是供给了实现机制，要想用起来还得应用法度本身显式重写相干控件，估计还有一层隐含的意思，法令风险自大。在我的体系中一试，果真一个像素都不克不及拉出界。但那个闪光是怎么回事呢？
+
+      在处理惩罚笔点消息处，overScrollBy后面不远处有一段mEdgeGlowTop的操纵代码，看名字就像，用它一搜，相干机制就全熟悉打听了。mEdgeGlowTop在setOverScrollMode函数时创建，它应用的都是体系中固有的，甚至不克不及经由过程theme改变。它的实现道理也很简单，仅仅是两张png的合成，经由过程透明度的变更建造闪光的结果。更无语的是它既不克不及被应用法度接见，也不受任何把握，要封闭它的独一办法是setOverScrollMode（View.OVER_SCROLL_NEVER）。不然就重写onTouchEvent函数吧，想干啥都可以，只是得本身做。
+
+      谈到overScroll，很多文章都提到了ListView的setOverscrollHeader和setOverscrollFooter，很多人想经由过程这个来把握那个闪光结果。这两玩意不单可以经由过程函数设置，也可以在xml中指定，相当便利。但最后很多人发明没有任何感化，百思不得其解。其实这两张是用来作为overScroll拖过界时的靠山的，默认体系不克不及拖过界，天然永远都看不到，有些定制的体系中能拖出界几个像素，但也很丢脸清。
+
+                第二项目组  代码实现
+     1. 在View中增长了overSrollBy办法，用于记录x， y 轴上迁移转变。
+
+     2. 在AbsListView的onTouchEvent中断定是否达到鸿沟（顶部 或 底部） ，然后调用view.overScrollBy ，传入 mScrollY等参数
+
+     3. overScrollBy 终极赋值给View的mScrollX， mScrollY 两个变量
+
+     4. 在AbsListView中调用完overScrollBy之后，调用invalidate重绘 </string>
+</resources>

@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="utf-8"?>
+<demo.com.customviewdemo.customview.MyDraggableRelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    tools:context="demo.com.customviewdemo.MainActivity">
+
+    <!--<TextView-->
+    <!--android:layout_width="match_parent"-->
+    <!--android:layout_height="500dp"-->
+    <!--android:background="@color/colorAccent"-->
+    <!--android:gravity="center"-->
+    <!--android:text="this is Bg"-->
+    <!--android:textSize="40sp" />-->
+
+
+    <!--<ListView-->
+    <!--android:layout_width="match_parent"-->
+    <!--android:layout_height="wrap_content"-->
+    <!--android:background="#fff"-->
+    <!--android:entries="@array/Strings" />-->
+
+
+    <demo.com.customviewdemo.customview.HeadZoomScrollView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <ImageView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:scaleType="centerCrop"
+                android:src="@mipmap/girl" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:background="#fff"
+                android:text="@string/text" />
+
+        </LinearLayout>
+
+    </demo.com.customviewdemo.customview.HeadZoomScrollView>
+
+
+</demo.com.customviewdemo.customview.MyDraggableRelativeLayout>
